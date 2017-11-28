@@ -1,27 +1,56 @@
 <html>
-<link rel="stylesheet" type="text/css" href="style.css">
+<head>
+
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>PiBot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+<link rel="stylesheet" href="bootstrap-material-design.min.css">
+</head>
 <body>
-	<div id="headWrapper"><h1>Robot Control Terminal</h1></div>
-
-	<div class="wrapper">
-		<div class="updownBtn"><button class="btn" onmousedown="robotMove(1)">Forward</button></div>
-		<div class="leftrightBtn"><button class="btn" onmousedown="robotMove(4)">Left</button></div>
-		<div class="leftrightBtn"><button class="btn" onmousedown="robotMove(2)">Right</button></div>
-		<div class="updownBtn"><button class="btn" onmousedown="robotMove(3)">Reverse</button></div>
-
-		<p class="statustext" id="status">Press a button to control the robot!</p>
-	</div>
-
-	<div class="wrapper">
-		<button class="btn" id="obsBtn" onclick="robotMove(6)">Activate obstacle avoidance!</button>
-		<p class="statustext" id="usStatus">Distance: --</p>
-	</div>
-
-	<div class="wrapper">
-		<button class="btn" id="cambtn" onclick="robotMove(5)">Take Photo!</button><img id="camera">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <a class="navbar-brand" href="#">Robot Control</a>
+</nav>
+<div class="container" style="padding: 1%">
+    
+    <div class="alert alert-primary" role="alert">
+    <span id="status">Current Status will be shown here</span>
     </div>
 
+    <div id="searchingForGyro">
+        <h2>Searching for gyroscope...</h2>
+    </div>
+    <div id="noGyro" class="display:none">
+    <h3>Non-Gyroscope Mode</h3>
+        <button class="btn" onmousedown="robotMove(1)">Forward</button>
+		<button class="btn" onmousedown="robotMove(4)">Left</button>
+		<button class="btn" onmousedown="robotMove(2)">Right</button>
+		<button class="btn" onmousedown="robotMove(3)">Reverse</button>
+		<p></p>
+		<button class="btn" onmousedown="robotMove(0)">Stop</button>
+		<button class="btn" onmousedown="enableGyro()">Enable Gyroscope</button>
+    </div>
+    <div id="gyro" class="display:none">
+    <h3>Gyroscope Mode</h3>
+    <input type="text" class="form-control" id="alpha" disabled>
+    <input type="text" class="form-control" id="beta" disabled>
+    <input type="text" class="form-control" id="gamma" disabled>
+    <p>Tilt the phone forward to move forward. Tilt the phone left and right to move in that direction.</p>
+    <p></p>
+		<button class="btn" onmousedown="disableGyro()">Disable Gyroscope</button>
+    </div>
+
+</div>
+    <script src="jquery-3.2.1.min.js"></script>
+<script src="popper.js"></script>
+<script src="bootstrap-material-design.js"></script>
+<script src="gyronorm.complete.min.js"></script>
+<script>$(document).ready(function() { $('body').bootstrapMaterialDesign(); });</script>
+
 <script type="text/javascript">
+$('#noGyro').hide();
+$('#gyro').hide();
 var config = {
 	ultrasonics: false
 };
@@ -46,6 +75,7 @@ function updateUltrasonic() {
 }
 
 function robotMove(direction) {
+
 	var url;
 	console.log("Direction id = " + direction);
 
@@ -69,7 +99,10 @@ function robotMove(direction) {
 		case "Left":
 			url = "/left";
 			break;
-
+		case 0:
+		case "Stop":
+			url = "/stop";
+			break;
 		case 5:
 			document.getElementById("status").innerHTML = "Acquiring image sensor data...";
 			document.getElementById("camera").src = "";
@@ -149,6 +182,106 @@ function keyEvent(e) {
 }
 
 document.addEventListener("keydown", keyEvent, false);
+    var gn;
+var currentlyMoving = false;
+    
+     function gnCallBack(data) {
+     console.log("callback");
+      $('#alpha').val(data.do.alpha);
+       $('#beta').val(data.do.beta);
+        $('#gamma').val(data.do.beta);
+        if(data.do.alpha > 50 && data.do.alpha < 100) {
+           if(!currentlyMoving) 
+{
+robotMove('Stop');
+ robotMove(4);
+currentlyMoving = true;
+}
+        }
+        else if(data.do.alpha < 300 && data.do.alpha > 250) {
+     if(!currentlyMoving) {       
+robotMove('Stop');
+robotMove(2);
+currentlyMoving = true;
+}
+        }
+        else if(data.do.beta < 25 && data.do.beta > -25) {
+if(!currentlyMoving) {
+robotMove('Stop');            
+robotMove(1);
+currentlyMoving = true;
+}
+        } else if(data.do.beta > 65 && data.do.beta < 120) {
+	if(!currentlyMoving){
+	robotMove('Stop');
+	robotMove(3);
+	currentlyMoving = true;
+}
+} else {
+	    robotMove('Stop');
+currentlyMoving = false;
+	
+    }
+}
+      
+$(document).ready(function() {
+
+gn = new GyroNorm();
+gn.init().then(function () {
+        var isAvailable = gn.isAvailable();
+        if(!isAvailable.deviceOrientationAvailable) {
+        console.log("nope");
+         $('#searchingForGyro').fadeOut(1000, function() {
+$('#noGyro').fadeIn(1000);
+});
+        }
+        if(!isAvailable.accelerationAvailable) {
+         $('#searchingForGyro').fadeOut(1000, function() {
+$('#noGyro').fadeIn(1000);
+});
+        }
+        if(!isAvailable.accelerationIncludingGravityAvailable) {
+          $('#searchingForGyro').fadeOut(1000, function() {
+$('#noGyro').fadeIn(1000);
+});
+        } 
+        if(!isAvailable.rotationRateAvailable) {
+          $('#searchingForGyro').fadeOut(1000, function() {
+$('#noGyro').fadeIn(1000);
+});
+        }
+        $('#searchingForGyro').fadeOut(1000, function() {
+        gn.start(gnCallBack);
+$('#gyro').fadeIn(1000);
+});
+        
+
+}).catch(function(e){
+$('#searchingForGyro').fadeOut(1000, function() {
+$('#noGyro').fadeIn(1000);
+});
+});
+    
+
+});
+function enableGyro() {
+$('#noGyro').fadeOut(1000, function() {
+gn.start(gnCallBack);
+    $('#gyro').fadeIn();
+    
+});
+}
+
+   function disableGyro() {
+$('#gyro').fadeOut(1000, function() {
+gn.stop();
+    $('#noGyro').fadeIn();
+    
+});
+}
+
+
+
 </script>
 </body>
 </html>

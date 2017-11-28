@@ -24,34 +24,31 @@ import os, logging, subprocess, time, argparse
 from bottle import route, request, response, redirect, hook, error, default_app, view, static_file, template, HTTPError
 from gpiozero import CamJamKitRobot, DistanceSensor, LineSensor
 
+@route('/stop')
+def action_stop():
+	robot.stop()
+	return "STOPPED"
+
 @route('/left')
 def action_left():
 	robot.left()
-	time.sleep(0.2)
-	robot.stop()
 	return "LEFT TURN"
 
 @route('/right')
 def action_right():
 	robot.right()
-	time.sleep(0.2)
-	robot.stop()
 	return "RIGHT TURN"
 
 @route('/forward')
 @route('/forwards')
 def action_forward():
 	robot.forward()
-	time.sleep(0.2)
-	robot.stop()
 	return "FORWARDS"
 
 @route('/back')
 @route('/backward')
 def action_back():
 	robot.backward()
-	time.sleep(0.2)
-	robot.stop()
 	return "BACKWARDS"
 
 @route('/ultrasonic')
@@ -73,6 +70,26 @@ def index():
 @route('/style.css')
 def index():
 	return static_file('style.css', root='public')
+
+@route('/bootstrap-material-design.min.css')
+def index():
+	return static_file('bootstrap-material-design.min.css', root='public')
+
+@route('/jquery-3.2.1.min.js')
+def index():
+	return static_file('jquery-3.2.1.min.js', root='public')
+
+@route('/popper.js')
+def index():
+	return static_file('popper.js', root='public')
+
+@route('/bootstrap-material-design.js')
+def index():
+	return static_file('bootstrap-material-design.js', root='public')
+
+@route('/gyronorm.complete.min.js')
+def index():
+	return static_file('gyronorm.complete.min.js', root='public')
 
 if __name__ == '__main__':
 
