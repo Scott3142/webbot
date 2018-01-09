@@ -32,11 +32,15 @@ def action_stop():
 @route('/left')
 def action_left():
 	robot.left()
+	sleep(0.1)
+	robot.stop()
 	return "LEFT TURN"
 
 @route('/right')
 def action_right():
 	robot.right()
+	sleep(0.1)
+	robot.stop()
 	return "RIGHT TURN"
 
 @route('/forward')

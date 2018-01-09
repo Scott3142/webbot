@@ -13,7 +13,7 @@
   <a class="navbar-brand" href="#">Robot Control</a>
 </nav>
 <div class="container" style="padding: 1%">
-    
+
     <div class="alert alert-primary" role="alert">
     <span id="status">Current Status will be shown here</span>
     </div>
@@ -184,14 +184,14 @@ function keyEvent(e) {
 document.addEventListener("keydown", keyEvent, false);
     var gn;
 var currentlyMoving = false;
-    
+
      function gnCallBack(data) {
      console.log("callback");
       $('#alpha').val(data.do.alpha);
        $('#beta').val(data.do.beta);
         $('#gamma').val(data.do.beta);
         if(data.do.alpha > 50 && data.do.alpha < 100) {
-           if(!currentlyMoving) 
+           if(!currentlyMoving)
 {
 robotMove('Stop');
  robotMove(4);
@@ -199,7 +199,7 @@ currentlyMoving = true;
 }
         }
         else if(data.do.alpha < 300 && data.do.alpha > 250) {
-     if(!currentlyMoving) {       
+     if(!currentlyMoving) {
 robotMove('Stop');
 robotMove(2);
 currentlyMoving = true;
@@ -207,7 +207,7 @@ currentlyMoving = true;
         }
         else if(data.do.beta < 25 && data.do.beta > -25) {
 if(!currentlyMoving) {
-robotMove('Stop');            
+robotMove('Stop');
 robotMove(1);
 currentlyMoving = true;
 }
@@ -220,10 +220,10 @@ currentlyMoving = true;
 } else {
 	    robotMove('Stop');
 currentlyMoving = false;
-	
+
     }
 }
-      
+
 $(document).ready(function() {
 
 gn = new GyroNorm();
@@ -244,7 +244,7 @@ $('#noGyro').fadeIn(1000);
           $('#searchingForGyro').fadeOut(1000, function() {
 $('#noGyro').fadeIn(1000);
 });
-        } 
+        }
         if(!isAvailable.rotationRateAvailable) {
           $('#searchingForGyro').fadeOut(1000, function() {
 $('#noGyro').fadeIn(1000);
@@ -254,21 +254,21 @@ $('#noGyro').fadeIn(1000);
         gn.start(gnCallBack);
 $('#gyro').fadeIn(1000);
 });
-        
+
 
 }).catch(function(e){
 $('#searchingForGyro').fadeOut(1000, function() {
 $('#noGyro').fadeIn(1000);
 });
 });
-    
+
 
 });
 function enableGyro() {
 $('#noGyro').fadeOut(1000, function() {
 gn.start(gnCallBack);
     $('#gyro').fadeIn();
-    
+
 });
 }
 
@@ -276,7 +276,7 @@ gn.start(gnCallBack);
 $('#gyro').fadeOut(1000, function() {
 gn.stop();
     $('#noGyro').fadeIn();
-    
+
 });
 }
 
